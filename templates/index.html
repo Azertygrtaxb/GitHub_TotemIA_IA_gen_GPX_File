@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Generate Your Custom Route</h2>
+            </div>
+            <div class="card-body">
+                <form id="routeForm">
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location (Bretagne uniquement)</label>
+                        <input type="text" class="form-control" id="location" name="location" 
+                               required placeholder="Entrez le nom d'une ville bretonne">
+                        <div class="form-text text-muted">
+                            Exemple: Rennes, Brest, Quimper, Saint-Malo, Vannes, Plérin, Saint-Brieuc, etc.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="activity_type" class="form-label">Activity Type</label>
+                        <select class="form-select" id="activity_type" name="activity_type" required>
+                            <option value="hiking">Hiking</option>
+                            <option value="running">Running</option>
+                            <option value="trail">Trail Running</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="level" class="form-label">Experience Level</label>
+                        <select class="form-select" id="level" name="level" required>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="expert">Expert</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="distance" class="form-label">Desired Distance (km)</label>
+                        <input type="number" class="form-control" id="distance" name="distance" 
+                               required min="1" max="50">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="landscape" class="form-label">Preferred Landscape</label>
+                        <select class="form-select" id="landscape" name="landscape" required>
+                            <option value="forest">Forest</option>
+                            <option value="mountain">Mountain</option>
+                            <option value="coastal">Coastal</option>
+                            <option value="road">Road</option>
+                        </select>
+                    </div>
+
+                    <!-- Personalization Fields -->
+                    <div class="mb-3">
+                        <label for="route_type" class="form-label">Type de parcours</label>
+                        <select class="form-select" id="route_type" name="route_type" required>
+                            <option value="loop">En boucle</option>
+                            <option value="roundtrip">Aller-retour</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="elevation_preference" class="form-label">Préférence de dénivelé</label>
+                        <select class="form-select" id="elevation_preference" name="elevation_preference" required>
+                            <option value="flat">Plutôt plat</option>
+                            <option value="moderate">Dénivelé moyen</option>
+                            <option value="hilly">Beaucoup de dénivelé</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Durée souhaitée</label>
+                        <select class="form-select" id="duration" name="duration" required>
+                            <option value="0.5">30 minutes</option>
+                            <option value="1">1 heure</option>
+                            <option value="2">2 heures ou plus</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="surface_type" class="form-label">Type de sol préféré</label>
+                        <select class="form-select" id="surface_type" name="surface_type" required>
+                            <option value="road">Route</option>
+                            <option value="dirt">Sentiers en terre</option>
+                            <option value="gravel">Chemins de graviers</option>
+                            <option value="technical">Sentiers techniques</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="points_of_interest" class="form-label">Points d'intérêt souhaités</label>
+                        <select class="form-select" id="points_of_interest" name="points_of_interest" required>
+                            <option value="none">Non nécessaire</option>
+                            <option value="panoramic">Vue panoramique</option>
+                            <option value="river">Rivière</option>
+                            <option value="monument">Monument</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               required placeholder="Enter your email">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Generate Route</button>
+                </form>
+
+                <div id="statusMessage" class="alert mt-3" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/form.js"></script>
+{% endblock %}

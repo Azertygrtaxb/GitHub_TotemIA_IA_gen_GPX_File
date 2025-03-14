@@ -1,0 +1,144 @@
+
+
+Développer une solution IA **autonome et ultra-personnalisée** qui :
+
+1. **Reçoit et analyse les préférences utilisateur** fournies via des inputs.
+2. Utilise l'API **OpenRouteService (ORS)** pour **générer dynamiquement un parcours GPX** unique en Bretagne, en fonction des données utilisateur.
+3. Génère un **message personnalisé** avec l'API **OpenAI**, reflétant le niveau et les préférences du client.
+4. Envoie automatiquement le **fichier GPX par email** en utilisant l'API **Gmail**, avec un message engageant et valorisant.
+5. Assure la **sécurité, la cohérence et la fluidité du processus**.
+
+---
+
+## 🚀 **Instructions Précises pour l'IA**
+
+---
+
+### **1. Collecte et Vérification des Données Utilisateur**
+
+L'IA doit **recevoir les données utilisateur** suivantes et les vérifier :
+
+- **Localisation** : Nom de la ville **uniquement en Bretagne** (ex : Plérin, Saint-Malo, Brest).
+    
+    - **Action** : Vérifier systématiquement que la ville est située en Bretagne.
+    - Si la ville n'est pas en Bretagne, renvoyer une erreur explicite.
+    - Utiliser un service de **géocodage** (comme OSM Nominatim) pour obtenir les **coordonnées GPS** précises.
+- **Type d'Activité** : Trail Running, Randonnée, Marche.
+    
+    - **Action** : Utiliser cette information pour définir le **profil ORS** (`foot-hiking` pour randonnée/trail, `foot-walking` pour marche).
+- **Niveau d'Expérience** : Débutant, Intermédiaire, Expert.
+    
+    - **Action** : Utiliser cette donnée pour ajuster le **niveau de difficulté** du parcours (distance, dénivelé, technicité).
+- **Distance Souhaitée** : En kilomètres.
+    
+    - **Action** : Vérifier que la distance est **cohérente** avec le niveau d'expérience.
+    - Convertir la distance en **mètres** pour l'API ORS.
+- **Type de Paysage** : Forêt, Montagne, Côtier.
+    
+    - **Action** : Utiliser cette préférence pour orienter la sélection du parcours si possible.
+- **Type de Parcours** : Boucle ou Aller-retour.
+    
+    - **Action** : Utiliser le paramètre `round_trip` dans l'API ORS.
+- **Préférence de Dénivelé** : Plat, Modéré, Difficile.
+    
+    - **Action** : Si les données sont disponibles, ajuster le parcours en fonction du dénivelé.
+- **Temps Estimé de Sortie** : 1h, 2h, 3h+.
+    
+    - **Action** : Vérifier que la durée est cohérente avec la distance et la difficulté.
+- **Type de Sol Préféré** : Sentiers en terre, chemins de graviers, sentiers techniques.
+    
+    - **Action** : Filtrer les parcours si les données de type de sol sont disponibles.
+- **Points d'Intérêt Souhaités** : Vue panoramique, rivière, monument, non nécessaire.
+    
+    - **Action** : Inclure ces éléments dans le parcours si l'API le permet.
+- **Adresse Email** : Adresse de l'utilisateur pour l'envoi.
+    
+
+---
+
+### **2. Génération du Parcours GPX avec OpenRouteService (ORS)**
+
+L'IA doit construire une **requête API optimisée** vers ORS, en utilisant les données utilisateur.
+
+#### **Paramètres de la Requête API :**
+
+- `coordinates` : Coordonnées GPS de la localisation validée.
+- `profile` : Sélectionner dynamiquement entre `foot-walking` ou `foot-hiking` en fonction du type d'activité.
+- `round_trip` : Activer cette option si l'utilisateur a choisi un parcours en boucle.
+- `length` : Distance en mètres.
+- `elevation` : Activer pour inclure les données d'altitude.
+- `points` : Définir le nombre de points pour varier la forme du parcours.
+- `avoid_polygons` : Exclure certaines zones si nécessaire (ex : routes principales, chemins non souhaités).
+
+---
+
+### **3. Conversion en Fichier GPX**
+
+- Convertir les données GeoJSON obtenues en un **fichier GPX** standardisé.
+- Le fichier GPX doit inclure :
+    - Le **tracé complet** du parcours avec les coordonnées GPS.
+    - Les **données d'altitude** si disponibles.
+    - Des **métadonnées** : nom du parcours, distance, difficulté.
+- Sauvegarder temporairement le fichier GPX jusqu'à l'envoi par email.
+
+---
+
+### **4. Génération du Message Personnalisé avec l'API OpenAI**
+
+- Utiliser l'API OpenAI pour **générer un message personnalisé** basé sur les données suivantes :
+    - Le niveau de l'utilisateur (Débutant, Intermédiaire, Expert).
+    - La localisation et le type de paysage.
+    - La difficulté et la distance du parcours.
+    - Le type de parcours (boucle ou aller-retour).
+
+#### **Le message doit :**
+
+- Être engageant, chaleureux, et professionnel.
+- Refléter l'image de marque innovante et experte du magasin.
+- Mettre en avant les points forts du parcours et encourager l'utilisateur.
+- Exemple de ton :
+
+> "Bonjour [Prénom],
+> 
+> Voici votre parcours personnalisé de [distance] km, le long des magnifiques côtes de [localisation]. Ce tracé, adapté à votre niveau [débutant/intermédiaire/expert], vous promet une aventure unique. Profitez du paysage, laissez-vous guider par les sentiers et vivez pleinement cette expérience en Bretagne.
+> 
+> Votre parcours est prêt en pièce jointe au format GPX.
+> 
+> Bonne aventure, et au plaisir de vous retrouver chez Sport Outdoor !"
+
+---
+
+### **5. Envoi Automatique de l'Email avec Gmail API**
+
+- Utiliser l'**API Gmail** pour automatiser l'envoi de l'email contenant :
+    - **Objet** : `"Votre parcours personnalisé en Bretagne – Sport Outdoor"`.
+    - **Corps** : Le message personnalisé généré par OpenAI.
+    - **Pièce jointe** : Le fichier GPX généré.
+
+---
+
+### **6. Sécurité et Bonnes Pratiques**
+
+- Stocker toutes les **clés API** (OpenAI, ORS, Gmail) dans les **secrets de Replit**.
+- Vérifier que l'email a été **envoyé avec succès** avant de supprimer le fichier GPX temporaire.
+- Gérer les erreurs de manière robuste :
+    - Si le parcours ne peut pas être généré, envoyer un message d'erreur clair.
+    - Si l'email échoue, consigner l'erreur et réessayer.
+
+---
+
+### ✅ **Résultat Attendu**
+
+- Chaque utilisateur reçoit un **email professionnel et personnalisé** avec :
+    - Un **fichier GPX unique**, généré dynamiquement selon ses préférences.
+    - Un **message engageant et valorisant**, renforçant l'image de marque du magasin.
+
+---
+
+### 🚨 **Points de Vigilance**
+
+1. **Validation stricte des données utilisateur** : Toute incohérence doit être détectée et bloquée.
+2. **Personnalisation maximale du parcours** : Chaque itinéraire doit être unique et cohérent.
+3. **Sécurité renforcée** : Les clés API et les données utilisateur doivent être protégées.
+4. **Optimisation de l'expérience utilisateur** : Le processus doit être rapide, fluide et sans friction.
+5. **Gestion robuste des erreurs** : Prévoir des messages clairs et des plans de repli en cas de dysfonctionnement.

@@ -1,0 +1,146 @@
+
+
+
+## **Objectif**
+
+Développer une **solution IA autonome** qui prend en entrée les préférences utilisateur, génère dynamiquement un **parcours GPX personnalisé** en utilisant l'**API OpenRouteService (ORS)** et l'**API d'OpenAI**, puis envoie ce parcours par email via l'**API Gmail**. Le but est de concevoir et tester cette solution dans un environnement isolé, sans impacter l'application principale existante.
+
+---
+
+## **Fonctionnalités et Étapes de Développement**
+
+---
+
+### **1. Réception des Données Utilisateur (Input)**
+
+L'IA devra recevoir les données suivantes via des entrées simulées (`input()` en Python) pour les premiers tests. Les données attendues sont :
+
+- **Localisation** : Soit un nom de ville qui devra être converti en coordonnées GPS, soit directement les coordonnées latitude/longitude.
+- **Type d'Activité** : Randonnée, trail running, course à pieds (route).
+- **Niveau de l'Utilisateur** : Débutant, intermédiaire, expert. Cette donnée permettra d'ajuster la difficulté du parcours (distance, type de chemin, dénivelé).
+- **Distance Souhaitée** : En kilomètres. Cette distance sera utilisée pour déterminer la longueur du parcours.
+- **Type de Paysage** : Forêt, montagne, bord de mer. Cette donnée permettra d'orienter le choix des zones géographiques si possible.
+- **Adresse Email** : L'email de destination pour l'envoi du fichier GPX.
+
+---
+
+### **2. Traitement des Informations Utilisateur**
+
+- **Conversion de la Localisation** :
+    
+    - Si l'utilisateur fournit un **nom de ville**, utiliser un service de **géocodage** (comme OpenStreetMap Nominatim ou un service équivalent) pour convertir ce nom en **coordonnées GPS** (latitude, longitude).
+- **Analyse des Préférences** :
+    
+    - L'IA analysera les informations reçues pour :
+        - Déterminer le type de parcours (`foot-walking`, `foot-hiking`).
+        - Adapter le **niveau de difficulté** (par exemple, privilégier des sentiers plus complexes pour des utilisateurs experts).
+        - Orienter la distance et la forme du parcours (parcours en boucle).
+
+---
+
+### **3. Interaction avec l'API OpenAI**
+
+- Utiliser l'**API d'OpenAI** pour générer des **prompts dynamiques** et intelligents :
+    
+    - Créer un prompt basé sur les préférences utilisateur pour générer une **description personnalisée** du parcours, qui pourrait être ajoutée dans le corps de l'email ou utilisée pour un futur développement.
+    - Le prompt devra être formulé de manière à :
+        - Suggérer un parcours adapté aux choix de l'utilisateur.
+        - Mettre en valeur les caractéristiques du paysage choisi.
+        - Inclure des éléments engageants pour rendre l'expérience plus immersive.
+- **Gestion de la Sécurité** :
+    
+    - La clé API OpenAI doit être **stockée dans les secrets de Replit** pour éviter toute fuite de données sensibles.
+
+---
+
+### **4. Génération Dynamique du Parcours avec OpenRouteService (ORS)**
+
+- Construire une **requête API vers ORS** en utilisant les informations utilisateur :
+    
+    - **Paramètre `coordinates`** : Utiliser les coordonnées GPS obtenues à partir de la localisation.
+    - **Paramètre `profile`** : Choisir entre `foot-walking` ou `foot-hiking` en fonction du type d'activité.
+    - **Paramètre `round_trip`** : Générer un parcours en boucle en spécifiant :
+        - `length` : La distance totale du parcours en mètres (convertir depuis les kilomètres donnés par l'utilisateur).
+        - `points` : Le nombre de points de passage pour varier le parcours.
+    - **Paramètre `elevation`** : Activer l'option d'altitude pour intégrer les données de dénivelé dans le parcours.
+- La réponse de l'API ORS contiendra :
+    
+    - Les **coordonnées GPS** du parcours sous format GeoJSON.
+    - Les **données d'élévation**, si cette option est activée.
+    - Le **détail du trajet** sous forme de géométrie (liste des points de passage).
+
+---
+
+### **5. Conversion des Données en Fichier GPX**
+
+- Une fois le parcours généré par ORS, l'IA devra :
+    
+    - **Convertir les données GeoJSON** fournies par ORS en un **fichier GPX standard**, compatible avec les applications de navigation.
+    - Le fichier GPX devra contenir :
+        - Les **points de passage** du parcours (latitude, longitude).
+        - Les **données d'altitude** si disponibles.
+        - Les métadonnées de base (nom du parcours, distance, etc.).
+- Le fichier GPX sera enregistré temporairement dans le système de fichiers pour pouvoir être envoyé par email.
+    
+
+---
+
+### **6. Envoi du Parcours par Email**
+
+- Utiliser l'**API Gmail** pour automatiser l'envoi du parcours généré :
+    
+    - Le **fichier GPX** sera attaché à l'email.
+    - Le corps de l'email devra être simple et professionnel :
+        - Objet : `"Votre Parcours Personnalisé - Sport Outdoor"`.
+        - Corps du message :
+            
+            > "Bonjour,
+            > 
+            > Voici votre parcours personnalisé, généré en fonction de vos préférences.
+            > 
+            > Bonne aventure et à bientôt !"
+            
+- **Authentification Sécurisée** :
+    
+    - Utiliser le **mot de passe d'application** de Gmail.
+    - Stocker la clé d'authentification Gmail dans les **secrets de Replit**.
+
+---
+
+### **7. Sécurité et Bonnes Pratiques**
+
+- Stocker toutes les **clés API** et **informations sensibles** dans les **secrets Replit**.
+- S'assurer que les fichiers GPX sont **supprimés après l'envoi** pour éviter une accumulation inutile sur le serveur.
+- Ajouter une **vérification des données** :
+    - Vérifier que l'email est bien valide.
+    - Vérifier que la distance et les coordonnées GPS sont cohérentes.
+    - Prévoir une gestion des erreurs en cas d'échec de génération ou d'envoi.
+
+---
+
+### **8. Scénarios de Test**
+
+- **Test de génération de parcours** pour différentes localisations, distances, et types d'activité.
+- **Test de conversion des données en GPX** et vérification de la lisibilité du fichier dans des applications tierces (Komoot, Strava, Garmin, etc.).
+- **Test d'envoi d'emails** avec différentes adresses pour vérifier la robustesse du processus.
+- **Test des cas d'erreurs** :
+    - Mauvaise adresse email.
+    - Localisation invalide.
+    - Échec de la génération du parcours.
+
+---
+
+### **9. Points de Vigilance**
+
+- **Gestion des erreurs** : Ajouter des messages d'erreur clairs en cas d'échec.
+- **Sécurité** : Ne jamais exposer les clés API dans le code.
+- **Performance** : Vérifier que le processus est rapide et fluide, même pour des parcours plus longs.
+
+---
+
+## **Résultat Attendu**
+
+- Pour chaque jeu de données utilisateur :
+    - Un **parcours GPX personnalisé** est généré automatiquement.
+    - Le fichier est **envoyé par email** à l'adresse indiquée.
+    - Le processus est **sécurisé, stable et indépendant** de l'application principale.

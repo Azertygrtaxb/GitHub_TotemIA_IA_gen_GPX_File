@@ -1,0 +1,92 @@
+sender_email = os.environ.get("GMAIL_USER_ADDRESS")
+        html_content = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h1 style="color: #40E0D0;">Merci de votre intérêt !</h1>
+
+                <p>Même si nous n'avons pas trouvé de parcours correspondant exactement à vos critères, 
+                nous tenons à vous remercier de votre confiance.</p>
+
+                <div style="background-color: #f8f8f8; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <h3>🎉 Votre code promo exclusif : {discount_code}</h3>
+                    <p>Profitez de {discount_percentage}% de réduction sur votre prochain achat en magasin !</p>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <p>À bientôt chez Sport Outdoor !</p>
+                    <p>L'équipe Sport Outdoor</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+        message = create_message_with_attachment(
+            sender=sender_email,
+            to=email,
+            subject="Votre code promo Sport Outdoor !",
+            html_content=html_content
+        )
+
+        return send_gmail_message(sender_info, message)
+
+    except Exception as e:
+        logger.error(f"Error sending discount email: {e}")
+        return False
+
+def send_trail_email(email: str, trail_data: dict, discount_code: str) -> bool:
+    """
+    Send trail information and GPX file using Gmail SMTP
+    """
+    try:
+        sender_info = get_gmail_sender()
+        if not sender_info:
+            logger.error("Failed to get Gmail sender information")
+            return False
+
+        sender_email = os.environ.get("GMAIL_USER_ADDRESS")
+        html_content = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h1 style="color: #40E0D0;">Votre aventure commence ici !</h1>
+
+                <h2>Détails de votre parcours :</h2>
+                <ul>
+                    <li>Nom du parcours : {trail_data['trail_name']}</li>
+                    <li>Distance : {trail_data['distance']} km</li>
+                    <li>Niveau : {trail_data['difficulty_level']}</li>
+                    <li>Description : {trail_data['description']}</li>
+                </ul>
+
+                <div style="background-color: #f8f8f8; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <h3>🎉 Votre code promo exclusif : {discount_code}</h3>
+                    <p>Profitez de 5% de réduction sur votre prochain achat en magasin !</p>
+                </div>
+
+                <p>Le fichier GPX de votre parcours est en pièce jointe.</p>
+
+                <div style="margin-top: 30px;">
+                    <p>À bientôt sur les sentiers !</p>
+                    <p>L'équipe Sport Outdoor</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+        message = create_message_with_attachment(
+            sender=sender_email,
+            to=email,
+            subject="Votre parcours personnalisé Sport Outdoor vous attend !",
+            html_content=html_content,
+            attachment_path=trail_data['gpx_file_path'],
+            attachment_name=f"{trail_data['trail_name']}.gpx"
+        )
+
+        return send_gmail_message(sender_info, message)
+
+    except Exception as e:
+        logger.error(f"Error sending email: {e}")
+        return False
